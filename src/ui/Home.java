@@ -1,87 +1,86 @@
 package ui;
 
-import dao.ContactDAO;
+import controller.TeacherController;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import model.Contact;
 
-public class Home  extends Application{
-	//table to display contact
-	TableView<Contact> table =new TableView<>();
-	//list to hold contact dat
-	ObservableList<Contact> list =FXCollections.observableArrayList();
-	
-	TextField nameField=new TextField();
-	TextField phoneField=new TextField();
-	
-	ContactDAO dao=new ContactDAO(); 
-	public void start (Stage stage) {
-		nameField.setPromptText("enter Name");
-		phoneField.setPromptText("enter Phone");
-		TableColumn<Contact,Integer> colId=new TableColumn<>("ID");
+import model.Teacher;
+
+public class Home extends Application {
+	TextField nameField = new TextField();
+	TextField phoneField = new TextField();
+	TextField salaryField = new TextField();
+	Label messageLabel = new Label();
+	TableView<Teacher> table = new TableView<>();
+	ObservableList<Teacher> list = FXCollections.observableArrayList();
+
+	public void start(Stage stage) {
+		nameField.setPromptText("name");
+		nameField.setTooltip(new Tooltip("enetr the name"));
+		phoneField.setPromptText("phone numebr");
+		phoneField.setTooltip(new Tooltip("enter the phone numebr"));
+		salaryField.setPromptText("salary");
+		salaryField.setTooltip(new Tooltip("enter the salary"));
+		TableColumn<Teacher, Integer> colId = new TableColumn<>();
 		colId.setCellValueFactory(
-				c-> new javafx.beans.property.SimpleIntegerProperty(c.getValue().getId().asObject()));
-		TableColumn<Contact,String> colName=new TableColumn<>("Name");
+				c -> new javafx.beans.property.SimpleIntegerProperty(c.getValue().getTeacher_id()).asObject());
+		TableColumn<Teacher, String> colName = new TableColumn<>();
 		colName.setCellValueFactory(
-				c-> new javafx.beans.property.SimpleStringProperty(c.getValue().getName()));
-		TableColumn<Contact,Integer> colPhone=new TableColumn<>("phone");
+				c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getTeacher_name()));
+		TableColumn<Teacher, String> colPhone = new TableColumn<>();
 		colPhone.setCellValueFactory(
-				c-> new javafx.beans.property.SimpleLongProperty(c.getValue().getPhone().asObject()));
-		
-		table.getColumns().add(colId);
-		table.getColumns().add(colName);
-		table.getColumns().add(colPhone);
-		
-		Button addBTn =new Button("Add");
-		Button deleteBTn =new Button("Delete");
-		Button UpdateBTn =new Button("Update");
-		
-		addBTn.setOnAction(e->insertData());
-		deleteBTn.setOnAction(e->deleteData());
-		UpdateBTn.setOnAction(e->UpdateData());
-		
-		table.setOnMouseClicked(
-				e->{
-					Contact c=table.getSelectionModel().getSelectedItem();
-					if(c!=null) {
-						nameField.setText(c.getName());
-						phoneField.setText(String.valueOf(c.getPhone()));
-					}
-				});
-		VBox root=new VBox(10,nameField,phoneField,addBTn,deleteBTn,UpdateBTn,table);
-		LoadData();
-		stage.setScene(new Scene(root,400,450));
+				c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getTeacher_phone()));
+		TableColumn<Teacher, Double> colSalary = new TableColumn<>();
+		colSalary.setCellValueFactory(
+				c -> new javafx.beans.property.SimpleDoubleProperty(c.getValue().getTeacher_salary()).asObject());
+		table.getColumns().addAll(colId, colName, colPhone, colSalary);
+		Button addBtn = new Button("add");
+		Button delBtn = new Button("delete");
+		Button upddateBtn = new Button("update");
+
+		TeacherController controller = new TeacherController();
+		addBtn.setOnAction(ac -> {
+			controller.addTeacher(nameField, phoneField, salaryField, messageLabel);
+			controller.loadData(list,table);
+			nameField.clear();
+			phoneField.clear();
+			salaryField.clear();
+
+		});
+		delBtn.setOnAction(ac -> {
+			controller.deleteTeacher(table.getSelectionModel().getSelectedItem(), messageLabel);
+			controller.loadData(list,table);
+
+		});
+		upddateBtn.setOnAction(ac -> {
+			controller.updateTeacher(table.getSelectionModel().getSelectedItem(), nameField, phoneField, salaryField,
+					messageLabel);
+			controller.loadData(list,table);
+		});
+
+		table.setOnMouseClicked(e -> {
+			Teacher t = table.getSelectionModel().getSelectedItem();
+			if (t != null) {
+				nameField.setText(t.getTeacher_name());
+				phoneField.setText(t.getTeacher_phone());
+				salaryField.setText(String.valueOf(t.getTeacher_salary()));
+			}
+		});
+		VBox root = new VBox(10, nameField, phoneField,salaryField, messageLabel, addBtn, delBtn, upddateBtn, table);
+		stage.setScene(new Scene(root, 400, 450));
 		stage.setTitle("contact crud app");
 		stage.show();
+
 	}
-	void LoadData() {
-		list.clear();
-		list.addAll(dao.getAllContacts());
-		table.setItems(list);
-		
-		
-	}
-	void insertDate() {
-		if(nameField.getText().isEmpty()|| phoneField.getText().isEmpty()) {
-			System.out.println("fields cannot be empty");
-			return;
-		}
-		dao.addContact(){
-			nameField.getText();
-			Long.parseLong(phoneField.getText());
-			
-		}
-		LoadData();
-		na
-	}
-	
 
 }
