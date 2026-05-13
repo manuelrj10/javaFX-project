@@ -4,15 +4,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class DBConnection {
-
-	public static Connection getConnection() {
+	public static Connection getConnetion() {
 		try {
-			return DriverManager.getConnection("\"jdbc:mysql://localhost:3306/luminar","root","mysql");
+			return DriverManager.getConnection("jdbc:mysql://localhost:3306/luminar","root","mysql");
+			
 		}catch(Exception e) {
 			e.printStackTrace();
 			return null;
 		}
-		
 	}
 
 }
